@@ -3,707 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LLM Wiki：從文章消化到大腦簡報的共創知識庫</title>
+  <title>RWA 知識庫目錄索引 (Wiki Index)</title>
   <style>
-    /* ===== 全域與重設 ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
       background: #090d16;
       color: #f1f5f9;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
-    }
-
-    /* ===== 頂部 GitHub 導覽列 ===== */
-    .top-nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 52px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      z-index: 1000;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 15px;
-      color: #38bdf8;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .nav-link {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.7);
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .nav-link:hover {
-      color: #ffffff;
-      background: rgba(56, 189, 248, 0.15);
-      border-color: #38bdf8;
-    }
-
-    /* ===== 投影片主容器 ===== */
-    .slides-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      padding-top: 52px;
-    }
-
-    .slide {
-      position: absolute;
-      top: 52px;
-      left: 0;
-      width: 100%;
-      height: calc(100% - 52px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 60px 80px 60px;
-      opacity: 0;
-      transform: scale(0.96) translateY(20px);
-      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-      pointer-events: none;
-    }
-
-    .slide.active {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-      pointer-events: all;
-    }
-
-    /* ===== 頁面背景漸層 ===== */
-    .bg-1 { background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090d16 75%); }
-    .bg-2 { background: radial-gradient(circle at 30% 30%, #31102f 0%, #090d16 75%); }
-    .bg-3 { background: radial-gradient(circle at 70% 30%, #064e3b 0%, #090d16 75%); }
-    .bg-4 { background: radial-gradient(circle at 40% 40%, #1e3a5f 0%, #090d16 75%); }
-    .bg-5 { background: radial-gradient(circle at 60% 40%, #3b1d11 0%, #090d16 75%); }
-    .bg-6 { background: radial-gradient(circle at 50% 50%, #182747 0%, #090d16 75%); }
-    .bg-7 { background: radial-gradient(circle at 30% 60%, #1c2833 0%, #090d16 75%); }
-    .bg-8 { background: radial-gradient(circle at 70% 50%, #2a1b4e 0%, #090d16 75%); }
-    .bg-9 { background: radial-gradient(circle at 50% 30%, #142a3b 0%, #090d16 75%); }
-
-    /* ===== 標題與字體 ===== */
-    .slide-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      font-size: clamp(34px, 4.8vw, 54px);
-      font-weight: 800;
-      line-height: 1.25;
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    h2 {
-      font-size: clamp(26px, 3.2vw, 38px);
-      font-weight: 700;
-      line-height: 1.3;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    p.lead {
-      font-size: clamp(16px, 1.8vw, 21px);
-      color: rgba(255, 255, 255, 0.75);
-      text-align: center;
-      max-width: 860px;
+      padding: 40px 20px;
       line-height: 1.6;
-      margin-bottom: 24px;
     }
-
-    .highlight-cyan { color: #38bdf8; font-weight: 700; }
-    .highlight-green { color: #34d399; font-weight: 700; }
-    .highlight-amber { color: #fbbf24; font-weight: 700; }
-    .highlight-purple { color: #c084fc; font-weight: 700; }
-
-    /* ===== 引言與強調盒 ===== */
-    .quote-box {
-      background: rgba(255, 255, 255, 0.04);
-      border-left: 4px solid #38bdf8;
-      border-radius: 0 16px 16px 0;
-      padding: 22px 28px;
-      max-width: 860px;
-      margin: 16px auto;
-      font-size: 18px;
-      line-height: 1.7;
-      color: #e2e8f0;
-      position: relative;
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
     }
-
-    .quote-box strong { color: #38bdf8; }
-
-    /* ===== 卡片網格 ===== */
-    .grid {
-      display: grid;
-      gap: 18px;
-      width: 100%;
-      max-width: 1100px;
-      margin-top: 14px;
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
-
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .grid-2 { grid-template-columns: repeat(2, 1fr); }
-
-    .card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 22px;
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
+    .back-btn {
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: rgba(56,189,248,0.1);
+      border: 1px solid rgba(56,189,248,0.25);
+      transition: all 0.2s;
     }
-
-    .card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(56, 189, 248, 0.4);
-      background: rgba(255, 255, 255, 0.07);
+    .back-btn:hover {
+      background: #38bdf8;
+      color: #090d16;
     }
-
-    .card-icon {
+    h1 {
       font-size: 32px;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .card h3 {
-      font-size: 18px;
-      font-weight: 700;
+      font-weight: 800;
+      color: #38bdf8;
       margin-bottom: 8px;
     }
-
-    .card p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.6;
+    .meta {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 24px;
     }
-
-    /* ===== 比較表格 ===== */
-    .table-container {
-      width: 100%;
-      max-width: 1000px;
-      overflow-x: auto;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      margin-top: 10px;
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 32px 0 16px 0;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
-      text-align: left;
-    }
-
-    th {
-      background: rgba(255, 255, 255, 0.06);
-      padding: 14px 18px;
-      color: #94a3b8;
-      font-weight: 700;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    td {
-      padding: 12px 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      vertical-align: middle;
-    }
-
-    tr:last-child td { border-bottom: none; }
-    .badge-check { color: #34d399; font-weight: 700; }
-    .badge-cross { color: #f87171; font-weight: 700; }
-
-    /* ===== 流程橫向節點 ===== */
-    .flow-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin: 20px 0;
-      max-width: 1100px;
-    }
-
-    .flow-step {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      margin-bottom: 24px;
+      background: rgba(255,255,255,0.03);
       border-radius: 12px;
-      padding: 16px 20px;
-      text-align: center;
-      flex: 1;
-      min-width: 180px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 14px;
     }
-
-    .flow-step.active-step {
-      border-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
+    th {
+      background: rgba(255,255,255,0.06);
+      padding: 12px 16px;
+      text-align: left;
+      color: #94a3b8;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
-
-    .flow-arrow {
-      font-size: 22px;
-      color: rgba(255, 255, 255, 0.3);
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-
-    /* ===== 底部控制項與進度 ===== */
-    .controls {
-      position: fixed;
-      bottom: 24px;
-      right: 32px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 1000;
-    }
-
-    .btn {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(15, 23, 42, 0.85);
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      backdrop-filter: blur(8px);
-    }
-
-    .btn:hover {
-      background: #38bdf8;
-      border-color: #38bdf8;
-      color: #090d16;
-      transform: scale(1.08);
-    }
-
-    .btn:disabled {
-      opacity: 0.25;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .page-indicator {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.4);
-      letter-spacing: 1.5px;
-      font-weight: 600;
-      margin-right: 6px;
-    }
-
-    .progress-bar-container {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.08);
-      z-index: 1000;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 11.1%;
-      background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
-      transition: width 0.4s ease;
-    }
-
-    .keyboard-hint {
-      position: fixed;
-      bottom: 24px;
-      left: 32px;
+    tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.35);
-      z-index: 1000;
+      font-weight: 600;
     }
-
-    /* 響應式 */
-    @media (max-width: 860px) {
-      .grid-3, .grid-2 { grid-template-columns: 1fr; }
-      .flow-row { flex-direction: column; }
-      .flow-arrow { transform: rotate(90deg); }
-      .slide { padding: 20px 20px 80px 20px; }
-    }
+    .badge-slide { background: rgba(56,189,248,0.15); color: #38bdf8; }
+    .badge-report { background: rgba(52,211,153,0.15); color: #34d399; }
+    .badge-article { background: rgba(192,132,252,0.15); color: #c084fc; }
+    .link { color: #38bdf8; text-decoration: none; font-weight: 600; }
+    .link:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-
-  <!-- ===== 頂部 GitHub 導覽列 ===== -->
-  <header class="top-nav">
-    <div class="nav-brand">
-      <span>🧠</span>
-      <span>LLM Wiki 知識庫展示</span>
+  <div class="container">
+    <div class="top-bar">
+      <div>
+        <h1>📚 RWA 知識庫全域索引 (Index)</h1>
+        <div class="meta">最後更新：2026-11-23 ✦ 總來源數：5 ✦ 總頁面數：11 ✦ 維護模式：LLM Wiki</div>
+      </div>
+      <a href="../index.html" class="back-btn">‹ 返回教學簡報</a>
     </div>
-    <nav class="nav-links">
-      <a href="https://github.com/cachuanho" target="_blank" class="nav-link">
-        <span>🐙</span> GitHub Profile
-      </a>
-      <a href="AGENTS.md" target="_blank" class="nav-link">
-        <span>📋</span> AGENTS.md
-      </a>
-      <a href="wiki/index.md" target="_blank" class="nav-link">
-        <span>📚</span> Wiki 索引
-      </a>
-      <a href="作業繳交報告.md" target="_blank" class="nav-link">
-        <span>📝</span> 作業報告
-      </a>
-    </nav>
-  </header>
 
-  <!-- ===== 投影片主容器 ===== -->
-  <main class="slides-container" id="slidesContainer">
+    <h2>📄 來源摘要頁（Sources）</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>頁面名稱</th>
+          <th>類型</th>
+          <th>日期</th>
+          <th>核心一句話摘要</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/sources/2024-11_RWA與台灣虛擬資產服務法.md" target="_blank">2024-11_RWA與台灣虛擬資產服務法</a></td>
+          <td><span class="badge badge-slide">slide</span></td>
+          <td>2024-11</td>
+          <td>RWA 代幣化三步驟與台灣《虛擬資產服務法》許可制架構導論</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/sources/2024-11_RWA60頁內容稿.md" target="_blank">2024-11_RWA60頁內容稿</a></td>
+          <td><span class="badge badge-report">report</span></td>
+          <td>2024-11</td>
+          <td>60頁詳細說明稿，含全球市場規模、立法沿革與亞洲比較法分析</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/sources/2024-11_星宇航空IPO分析.md" target="_blank">2024-11_星宇航空IPO分析</a></td>
+          <td><span class="badge badge-report">report</span></td>
+          <td>2024-11</td>
+          <td>四情境 DCF 與 DDM 估值模型，推導目標股價 NT$20–35</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/sources/2024-10_財務報表分析理論.md" target="_blank">2024-10_財務報表分析理論</a></td>
+          <td><span class="badge badge-report">report</span></td>
+          <td>2024-10</td>
+          <td>三大財務報表與自由現金流（FCF）折現理論方法論</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/sources/2026-04_Karpathy-LLM-Wiki模式.md" target="_blank">2026-04_Karpathy-LLM-Wiki模式</a></td>
+          <td><span class="badge badge-article">article</span></td>
+          <td>2026-04</td>
+          <td>Andrej Karpathy 提出之 LLM 個人知識庫持續複利模式</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Slide 1: 封面 -->
-    <section class="slide bg-1 active" id="slide-1">
-      <div class="slide-tag">教學 HTML 簡報 ✦ LLM Wiki 實作</div>
-      <h1>從文章消化到<span class="highlight-cyan">大腦簡報</span><br>用 AI 打造持續複利的知識庫</h1>
-      <p class="lead">不只是文件的冷冰冰摘要，而是透過與 Agent 的對話與概念辯析，先向自己的大腦簡報，再將認知沉澱為公開 Wiki！</p>
-      <div class="quote-box" style="text-align: center;">
-        💡 <strong>核心理念</strong>：「我做 LLM Wiki 的目的，是從文章內容可以跟我頭腦做簡報，甚至了解文章內容通過跟 agent 解釋裡面的概念、討論內容，然後同步在 GitHub 上呈現。」
-      </div>
-    </section>
+    <h2>🧩 概念頁（Concepts）</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>概念名稱</th>
+          <th>領域標籤</th>
+          <th>引用來源數</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/concepts/RWA代幣化.md" target="_blank">RWA代幣化</a></td>
+          <td>RWA, 代幣化, 區塊鏈</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/concepts/VASP許可制.md" target="_blank">VASP許可制</a></td>
+          <td>VASP, 許可制, 台灣法規</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/concepts/LLM-Wiki模式.md" target="_blank">LLM-Wiki模式</a></td>
+          <td>LLM, 知識管理, AI工具</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/concepts/DCF貼現現金流.md" target="_blank">DCF貼現現金流</a></td>
+          <td>財務分析, 估值, 投資</td>
+          <td>2</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Slide 2: 傳統痛點 -->
-    <section class="slide bg-2" id="slide-2">
-      <div class="slide-tag">痛點拆解 ✦ Why Traditional Fails</div>
-      <h2>為什麼讀了那麼多文章，<br>腦中還是像一盤散沙？</h2>
-      <div class="grid grid-2">
-        <div class="card">
-          <span class="card-icon">🌪️</span>
-          <h3>資訊未內化，無法跟大腦簡報</h3>
-          <p>看過的文章像過眼雲煙，因為沒有親自把概念「用自己的話講一遍」，真正要向別人報告或自己決策時，腦袋依然一片空白。</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🔁</span>
-          <h3>傳統 RAG：永遠在重新發現</h3>
-          <p>NotebookLM 或一般 RAG 只是在問問題時抓片段。每一次提問都在重新檢索，知識永遠不會「跨文件沈澱與累積」。</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🏚️</span>
-          <h3>個人筆記難以長期維護</h3>
-          <p>Notion 或 Obsidian 筆記本經常淪為文字墳場。人類受限於精力，難以在每次讀新文章時手動更新 10~15 個關聯頁面。</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🧱</span>
-          <h3>概念邊界模糊，缺乏對話辯析</h3>
-          <p>單向閱讀無法檢視自己的理解漏洞。缺少一個隨時在線、能互相推敲法規與商業定義的「費曼對話者」。</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 3: 核心突破 -->
-    <section class="slide bg-3" id="slide-3">
-      <div class="slide-tag">核心心智模型 ✦ Mental Rehearsal</div>
-      <h2>「跟我頭腦做簡報」的新工作法</h2>
-      <p class="lead">把寫 Wiki 當成一場大腦的預演。如果你能跟 Agent 講清楚，你就真正掌握了它。</p>
-      <div class="flow-row">
-        <div class="flow-step">
-          <div style="font-size:24px; margin-bottom:6px;">📖</div>
-          <div style="font-weight:700;">1. 閱讀原文</div>
-          <div style="font-size:12px; color:#94a3b8; margin-top:4px;">吸收原始生硬資訊</div>
-        </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step active-step">
-          <div style="font-size:24px; margin-bottom:6px;">🗣️</div>
-          <div style="font-weight:700; color:#38bdf8;">2. 跟 Agent 解釋概念</div>
-          <div style="font-size:12px; color:#94a3b8; margin-top:4px;">費曼學習法：人機對話辯析</div>
-        </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <div style="font-size:24px; margin-bottom:6px;">🧠</div>
-          <div style="font-weight:700;">3. 大腦簡報成型</div>
-          <div style="font-size:12px; color:#94a3b8; margin-top:4px;">心中有清楚的故事線與架構</div>
-        </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <div style="font-size:24px; margin-bottom:6px;">📚</div>
-          <div style="font-weight:700;">4. 沉澱為 Wiki</div>
-          <div style="font-size:12px; color:#94a3b8; margin-top:4px;">Agent 自動建頁與關聯更新</div>
-        </div>
-      </div>
-      <div class="quote-box">
-        💬 <strong>人機對話的魔力</strong>：Agent 不僅是聽眾，更是審查員。當你解釋「RWA 何時代幣化需要走 STO 許可制？」時，Agent 會指出法律盲點，並引用法條相互校準！
-      </div>
-    </section>
-
-    <!-- Slide 4: 三層架構 -->
-    <section class="slide bg-4" id="slide-4">
-      <div class="slide-tag">系統架構 ✦ Three-Tier System</div>
-      <h2>LLM Wiki 的三層運作結構</h2>
-      <div class="grid grid-3">
-        <div class="card">
-          <span class="card-icon">🔒</span>
-          <h3 class="highlight-amber">1. 原始來源 (Raw Sources)</h3>
-          <p><strong>真相的基石（唯讀）</strong><br><br>存放 PDF、PPTX、報告與法規。LLM 永遠只讀不改，保留不可篡改的客觀事實與歷史版本依據。</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🧠</span>
-          <h3 class="highlight-cyan">2. 知識庫 (The Wiki)</h3>
-          <p><strong>大腦的持久化延伸</strong><br><br>由 LLM 完全維護的 Markdown 資料庫。包含 Source 摘要、Concept 核心概念、Entity 實體，以及全域 index.md 與時序 log.md。</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">📋</span>
-          <h3 class="highlight-purple">3. 操作規範 (AGENTS.md)</h3>
-          <p><strong>Agent 的靈魂與行為法則</strong><br><br>定義如何討論、何時更新索引、Frontmatter 格式與 GitHub Pages 輸出準則，使 LLM 成為高度自律的知識夥伴。</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 5: RAG vs LLM Wiki 對比 -->
-    <section class="slide bg-5" id="slide-5">
-      <div class="slide-tag">深度比較 ✦ Paradigm Shift</div>
-      <h2>傳統 RAG vs LLM Wiki</h2>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>比較面向</th>
-              <th>傳統 RAG（檢索增強生成）</th>
-              <th>LLM Wiki 模式（大腦共創）</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>知識型態</strong></td>
-              <td>資料庫中的被動向量碎片（Chunks）</td>
-              <td><span class="badge-check">結構化、互相鏈接的 Markdown 知識網</span></td>
-            </tr>
-            <tr>
-              <td><strong>學習機制</strong></td>
-              <td>問答時臨時拼湊，對話結束即遺忘</td>
-              <td><span class="badge-check">經人機討論後持續複利累積</span></td>
-            </tr>
-            <tr>
-              <td><strong>與大腦的關係</strong></td>
-              <td>搜尋引擎替代品，缺乏心智理解</td>
-              <td><span class="badge-check">先向頭腦做簡報，實現真正內化</span></td>
-            </tr>
-            <tr>
-              <td><strong>跨文件矛盾處理</strong></td>
-              <td>被動輸出可能相衝突的段落</td>
-              <td><span class="badge-check">主動在 Concept 頁標註不同來源的爭端與演進</span></td>
-            </tr>
-            <tr>
-              <td><strong>展示與輸出</strong></td>
-              <td>僅停留在 Chat UI 視窗</td>
-              <td><span class="badge-check">同步輸出至 GitHub Pages 互動網頁</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Slide 6: 完整 Loop / Graph 設計 -->
-    <section class="slide bg-6" id="slide-6">
-      <div class="slide-tag">流程設計 ✦ Loop & Graph</div>
-      <h2>三大關鍵迴圈（Loop）的運作</h2>
-      <div class="grid grid-3">
-        <div class="card">
-          <span class="card-icon">📥</span>
-          <h3 class="highlight-cyan">Ingest 討論迴圈</h3>
-          <p>1. 讀入新文件<br>2. <strong>人機對話釐清概念</strong><br>3. 建立 Source 頁面<br>4. 跨頁擴充 Concept / Entity<br>5. 自動更新 Index 與 Log</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🔍</span>
-          <h3 class="highlight-green">Query 輸出迴圈</h3>
-          <p>1. 查閱 index.md 目錄<br>2. 聚合多份概念與引用<br>3. <strong>合成教學型簡報結構</strong><br>4. 優秀成果再回寫 Wiki</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🔧</span>
-          <h3 class="highlight-purple">Lint 維護迴圈</h3>
-          <p>1. 掃描孤兒頁面（無連結）<br>2. 檢測新舊法規矛盾<br>3. 揪出未定義的重要實體<br>4. 保持知識網強韌健康</p>
-        </div>
-      </div>
-      <p style="font-size:13px; color:#94a3b8; text-align:center; margin-top:14px;">
-        ⚡ <strong>設計精髓</strong>：把「檢查」節點前移到人機討論階段，杜絕未經消化的死板內容進入知識庫！
-      </p>
-    </section>
-
-    <!-- Slide 7: 本知識庫實踐案例 -->
-    <section class="slide bg-7" id="slide-7">
-      <div class="slide-tag">落地成果 ✦ Live Project Demo</div>
-      <h2>本專案真實 Ingest 成果矩陣</h2>
-      <div class="grid grid-2">
-        <div class="card">
-          <h3>📚 5 份多元來源文件（Raw Sources）</h3>
-          <p style="margin-top:8px; font-size:13px; line-height:1.7;">
-            • <code>2024-11_RWA與台灣虛擬資產服務法.md</code>（專法簡報）<br>
-            • <code>2024-11_RWA60頁內容稿.md</code>（立法沿革與全球市場）<br>
-            • <code>2024-11_星宇航空IPO分析.md</code>（四情境 DCF+DDM 模型）<br>
-            • <code>2024-10_財務報表分析理論.md</code>（三大報表與現金流）<br>
-            • <code>2026-04_Karpathy-LLM-Wiki模式.md</code>（知識庫元架構）
-          </p>
-        </div>
-        <div class="card">
-          <h3>🧩 萃取之核心概念與實體（Concepts & Entities）</h3>
-          <p style="margin-top:8px; font-size:13px; line-height:1.7;">
-            • <strong class="highlight-cyan">[[RWA代幣化]]</strong>：資產上鏈三步驟與台灣 STO 灰色地帶<br>
-            • <strong class="highlight-cyan">[[VASP許可制]]</strong>：金管會審查標準、資本額與洗錢防制<br>
-            • <strong class="highlight-green">[[DCF貼現現金流]]</strong>：星宇航空基準股價 NT$30.53 估值邏輯<br>
-            • <strong class="highlight-purple">[[虛擬資產服務法]]</strong>：專法第 1、3、7、15 條監管權責
-          </p>
-        </div>
-      </div>
-      <div class="quote-box" style="margin-top:12px; font-size:14px;">
-        💡 <strong>成果體現</strong>：單是一份星宇航空報告，就同時觸發了財務概念頁的更新、實體關聯以及與財報分析理論的交叉引用！
-      </div>
-    </section>
-
-    <!-- Slide 8: GitHub 與公開發布 -->
-    <section class="slide bg-8" id="slide-8">
-      <div class="slide-tag">工程展示 ✦ GitHub Ecosystem</div>
-      <h2>成果展示：同步 GitHub 與 Pages</h2>
-      <div class="grid grid-3">
-        <div class="card">
-          <span class="card-icon">📦</span>
-          <h3>GitHub Repository</h3>
-          <p>完整的版本控管。<br>包含唯讀的 <code>raw/</code> 來源、自動演進的 <code>wiki/</code> 目錄與透明的 <code>AGENTS.md</code> 規則手冊。</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🌐</span>
-          <h3>GitHub Pages 網頁</h3>
-          <p>根目錄 <code>index.html</code> 秒級發布。<br>無需複雜的 Node.js 編譯流程，點擊連結即可在任何裝置全螢幕播放本教學簡報。</p>
-        </div>
-        <div class="card">
-          <span class="card-icon">🔄</span>
-          <h3>持續演進的思維資產</h3>
-          <p>每次閱讀新文件、每次與 Agent 進行思維辯論，Push 到 GitHub 後網頁即刻更新，成為個人隨身的公開智慧庫。</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 9: 結語 -->
-    <section class="slide bg-9" id="slide-9">
-      <div class="slide-tag">總結與展望 ✦ Conclusion</div>
-      <h1>讓知識成為你大腦的<span class="highlight-cyan">外置硬碟</span></h1>
-      <p class="lead">人類負責好奇、閱讀、向自己與他人講述；<br>AI 負責追問、釐清盲點、自動編織成網。</p>
-      <div class="flow-row" style="margin-top:20px;">
-        <div class="flow-step" style="border-color:#38bdf8;">
-          <div style="font-weight:700; font-size:18px; color:#38bdf8;">大腦理解</div>
-          <div style="font-size:12px; color:#94a3b8;">跟我頭腦做簡報</div>
-        </div>
-        <div class="flow-arrow">＋</div>
-        <div class="flow-step" style="border-color:#34d399;">
-          <div style="font-weight:700; font-size:18px; color:#34d399;">人機共創</div>
-          <div style="font-size:12px; color:#94a3b8;">費曼概念對話</div>
-        </div>
-        <div class="flow-arrow">＝</div>
-        <div class="flow-step" style="border-color:#c084fc;">
-          <div style="font-weight:700; font-size:18px; color:#c084fc;">公開 Wiki</div>
-          <div style="font-size:12px; color:#94a3b8;">GitHub Pages 永續生長</div>
-        </div>
-      </div>
-      <p style="font-size:13px; color:rgba(255,255,255,0.4); margin-top:20px;">
-        感謝聆聽 ✦ 知識庫規格詳見 AGENTS.md ✦ 完整紀錄詳見 作業繳交報告.md
-      </p>
-    </section>
-
-  </main>
-
-  <!-- ===== 控制按鈕與進度 ===== -->
-  <footer class="controls">
-    <span class="page-indicator" id="pageIndicator">01 / 09</span>
-    <button class="btn" id="prevBtn" onclick="changeSlide(-1)" disabled title="上一頁">‹</button>
-    <button class="btn" id="nextBtn" onclick="changeSlide(1)" title="下一頁">›</button>
-  </footer>
-
-  <div class="keyboard-hint">← → 鍵盤箭頭 ✦ 空白鍵切換</div>
-  <div class="progress-bar-container">
-    <div class="progress-bar" id="progressBar"></div>
+    <h2>🏛️ 實體頁（Entities）</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>實體名稱</th>
+          <th>類型</th>
+          <th>狀態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/entities/虛擬資產服務法.md" target="_blank">虛擬資產服務法</a></td>
+          <td>法規 (law)</td>
+          <td>施行</td>
+        </tr>
+        <tr>
+          <td><a class="link" href="https://github.com/cachuanho/rwa-governance-wiki/blob/main/wiki/entities/星宇航空.md" target="_blank">星宇航空</a></td>
+          <td>機構 (institution)</td>
+          <td>營運中</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-
-  <!-- ===== 投影片切換邏輯 ===== -->
-  <script>
-    const totalSlides = 9;
-    let current = 1;
-
-    function changeSlide(dir) {
-      const prev = current;
-      current = Math.max(1, Math.min(totalSlides, current + dir));
-      if (prev === current) return;
-
-      const prevEl = document.getElementById('slide-' + prev);
-      const currEl = document.getElementById('slide-' + current);
-
-      prevEl.classList.remove('active');
-      currEl.classList.add('active');
-
-      updateUI();
-    }
-
-    function updateUI() {
-      document.getElementById('prevBtn').disabled = (current === 1);
-      document.getElementById('nextBtn').disabled = (current === totalSlides);
-      document.getElementById('pageIndicator').innerText = 
-        String(current).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
-      document.getElementById('progressBar').style.width = (current / totalSlides * 100) + '%';
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-        e.preventDefault();
-        changeSlide(1);
-      }
-      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-        e.preventDefault();
-        changeSlide(-1);
-      }
-    });
-
-    // 行動裝置滑動支援
-    let touchStartX = 0;
-    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, {passive: true});
-    document.addEventListener('touchend', (e) => {
-      const diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 40) changeSlide(diff > 0 ? 1 : -1);
-    }, {passive: true});
-
-    updateUI();
-  </script>
 </body>
 </html>
